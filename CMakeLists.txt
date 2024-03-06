@@ -24,3 +24,12 @@ add_subdirectory(src)
 # if you have anything in "lib" folder then uncomment below - remember to add a CMakeLists.txt
 # file to the "lib" directory
 #add_subdirectory(lib)
+
+# show target size info
+add_custom_target(
+    print-memory-usage ALL
+    COMMAND arm-none-eabi-size -G src/${CMAKE_PROJECT_NAME}.elf
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/build/src/${CMAKE_PROJECT_NAME}.elf
+    COMMENT "Print target size info"
+    DEPENDS ${ProjectName}
+)
