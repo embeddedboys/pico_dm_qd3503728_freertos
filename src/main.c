@@ -56,26 +56,18 @@ void vApplicationTickHook()
 	lv_tick_inc(1);
 }
 
+const TickType_t xPeriod = pdMS_TO_TICKS( 5 );
 static portTASK_FUNCTION(lv_timer_task_handler, pvParameters)
 {
 	TickType_t xLastWakeTime;
-	const TickType_t xPeriod = pdMS_TO_TICKS( 5 );
 	
 	xLastWakeTime = xTaskGetTickCount();  
 	
-	for(;;)
-	{		
+	for(;;) {		
 		vTaskDelayUntil( &xLastWakeTime,xPeriod );
-		lv_task_handler();
+		lv_timer_handler();
 	}
 	vTaskDelete(NULL);
-}
-
-void call_lv_disp_flush_ready(void)
-{
-    lv_disp_t *disp = lv_disp_get_default();
-    lv_disp_flush_ready(disp->driver);
-    pr_debug("lv disp flush ready\n");
 }
 
 extern int factory_test(void);
@@ -99,7 +91,6 @@ int main(void)
                     CPU_SPEED_MHZ * MHZ);
     stdio_uart_init_full(uart0, 115200, 16, 17);
 
-
     printf("\n\n\nPICO DM QD3503728 LVGL Porting\n");
 
     xToFlushQueue = xQueueCreate(2, sizeof(struct video_frame));
@@ -121,12 +112,12 @@ int main(void)
     // factory_test();
 
     TaskHandle_t lvgl_task_handle;
-    xTaskCreate(lv_timer_task_handler, "lvgl_task", 2048, NULL, (tskIDLE_PRIORITY + 3), &lvgl_task_handle);
-    // vTaskCoreAffinitySet(lvgl_task_handle, (1 << 0));
+    xTaskCreate(lv_timer_task_handler, "lvgl_task", 2048, NULL, (tskIDLE_PRIORITY + 2), &lvgl_task_handle);
+    vTaskCoreAffinitySet(lvgl_task_handle, (1 << 0));
 
     TaskHandle_t video_flush_handler;
-    xTaskCreate(video_flush_task, "video_flush", 512, NULL, (tskIDLE_PRIORITY + 2), &video_flush_handler);
-    // vTaskCoreAffinitySet(video_flush_handler, (1 << 1));
+    xTaskCreate(video_flush_task, "video_flush", 256, NULL, (tskIDLE_PRIORITY + 3), &video_flush_handler);
+    vTaskCoreAffinitySet(video_flush_handler, (1 << 1));
 
     backlight_driver_init();
     backlight_set_level(100);

@@ -56,7 +56,7 @@ struct ili9488_operations {
     int (*blank)(struct ili9488_priv *priv, bool on);
     int (*sleep)(struct ili9488_priv *priv, bool on);
     int (*set_var)(struct ili9488_priv *priv);
-    int (*set_addr_win)(struct ili9488_priv *priv, int xs, int ys, int xe, int ye);
+    void (*set_addr_win)(struct ili9488_priv *priv, int xs, int ys, int xe, int ye);
     int (*set_cursor)(struct ili9488_priv *priv, int x, int y);
 };
 
@@ -83,8 +83,6 @@ struct ili9488_priv {
     /* device specific */
     const struct ili9488_operations  *tftops;
     struct ili9488_display           *display;
-
-    struct video_context ctx;
 } __attribute__((__aligned__(4)))  g_priv;
 
 #define ARRAY_SIZE(arr) (sizeof(arr)/sizeof(arr[0]))
@@ -157,7 +155,7 @@ static void fbtft_write_gpio16_wr_rs(struct ili9488_priv *priv, void *buf, size_
     #define write_buf_rs(p, b, l, r) fbtft_write_gpio16_wr_rs(p, b, l, r)
 #endif
 
-static int ili9488_write_reg(struct ili9488_priv *priv, int len, ...)
+static void ili9488_write_reg(struct ili9488_priv *priv, int len, ...)
 {
     u16 *buf = (u16 *)priv->buf;
     va_list args;
@@ -170,7 +168,7 @@ static int ili9488_write_reg(struct ili9488_priv *priv, int len, ...)
     
     /* if there no privams */
     if (len == 0)
-        return 0;
+        return;
     
     for (i = 0; i < len; i++) {
         *buf = (u16)va_arg(args, unsigned int);
@@ -180,8 +178,6 @@ static int ili9488_write_reg(struct ili9488_priv *priv, int len, ...)
     len *= 2;
     write_buf_rs(priv, priv->buf, len, 1);
     va_end(args);
-    
-    return 0;
 }
 #define NUMARGS(...)  (sizeof((int[]){__VA_ARGS__}) / sizeof(int))
 #define write_reg(priv, ...) \
@@ -248,7 +244,7 @@ static int ili9488_init_display(struct ili9488_priv *priv)
     return 0;
 }
 
-static int ili9488_set_addr_win(struct ili9488_priv *priv, int xs, int ys, int xe,
+static void inline ili9488_set_addr_win(struct ili9488_priv *priv, int xs, int ys, int xe,
                                 int ye)
 {
     /* set column adddress */
@@ -259,7 +255,6 @@ static int ili9488_set_addr_win(struct ili9488_priv *priv, int xs, int ys, int x
     
     /* write start */
     write_reg(priv, 0x2C);
-    return 0;
 }
 
 static int ili9488_clear(struct ili9488_priv *priv, u16 clear)
@@ -366,7 +361,7 @@ static TaskHandle_t xTaskToNotify = NULL;
 
 const UBaseType_t XArrayIndex = 1;
 
-static void ili9488_video_sync(struct ili9488_priv *priv, int xs, int ys, int xe, int ye, void *vmem16, size_t len)
+static void inline ili9488_video_sync(struct ili9488_priv *priv, int xs, int ys, int xe, int ye, void *vmem16, size_t len)
 {
     pr_debug("video sync: xs=%d, ys=%d, xe=%d, ye=%d, len=%d\n", xs, ys, xe, ye, len);
     priv->tftops->set_addr_win(priv, xs, ys, xe, ye);
@@ -375,8 +370,8 @@ static void ili9488_video_sync(struct ili9488_priv *priv, int xs, int ys, int xe
 
 void ili9488_video_flush(int xs, int ys, int xe, int ye, void *vmem16, uint32_t len)
 {
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     xTaskToNotify = xTaskGetCurrentTaskHandle();
+
     ili9488_video_sync(&g_priv, xs, ys, xe, ye, vmem16, len);
 
     xTaskNotifyGiveIndexed(xTaskToNotify, XArrayIndex);
@@ -396,7 +391,7 @@ portTASK_FUNCTION(video_flush_task, pvParameters)
             pr_debug("Received video frame to flush\n");
             ili9488_video_flush(vf.xs, vf.ys, vf.xe, vf.ye, vf.vmem16, vf.len);
 
-            /* wait for notify */
+            /* waiting for notification */
             ulNotificationValue = ulTaskNotifyTakeIndexed(XArrayIndex, pdTRUE, xMaxBlockTime);
             pr_debug("Received notification, val : %d\n", ulNotificationValue);
 
@@ -438,8 +433,6 @@ static int ili9488_probe(struct ili9488_priv *priv)
         priv->gpio.db[i] = i;
 
     ili9488_hw_init(priv);
-
-
 
     return 0;
 }

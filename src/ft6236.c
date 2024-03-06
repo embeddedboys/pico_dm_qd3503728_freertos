@@ -59,7 +59,7 @@ struct ft6236_data {
 
 extern int i2c_bus_scan(i2c_inst_t *i2c);
 
-static int ft6236_write_reg(struct ft6236_data *priv, uint8_t reg, uint8_t val)
+static void ft6236_write_reg(struct ft6236_data *priv, uint8_t reg, uint8_t val)
 {
     uint16_t buf = val << 8 | reg;
     i2c_write_blocking(priv->i2c.master, priv->i2c.addr, (uint8_t *)&buf, sizeof(buf), false);

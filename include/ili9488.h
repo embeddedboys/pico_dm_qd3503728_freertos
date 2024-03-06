@@ -37,13 +37,6 @@ struct video_frame {
     uint32_t len;
 };
 
-struct video_context {
-
-    struct video_frame *frame;
-
-    void (*post_flush_cb)(void);
-};
-
 #define ILI9488_X_RES 480
 #define ILI9488_Y_RES 320
 

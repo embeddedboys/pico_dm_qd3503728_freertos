@@ -40,6 +40,7 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
 /**********************
  *  STATIC VARIABLES
  **********************/
+static lv_disp_drv_t disp_drv;
 
 /**********************
  *      MACROS
@@ -107,7 +108,7 @@ void lv_port_disp_init(void)
      * Register the display in LVGL
      *----------------------------------*/
 
-    static lv_disp_drv_t disp_drv;                         /*Descriptor of a display driver*/
+    // static lv_disp_drv_t disp_drv;                         /*Descriptor of a display driver*/
     lv_disp_drv_init(&disp_drv);                    /*Basic initialization*/
 
     /*Set up the functions to access to your display*/
@@ -131,8 +132,7 @@ void lv_port_disp_init(void)
     //disp_drv.gpu_fill_cb = gpu_fill;
 
     /*Finally register the driver*/
-    lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
-    lv_disp_set_default(disp);
+    lv_disp_drv_register(&disp_drv);
 }
 
 /**********************
@@ -162,36 +162,18 @@ void disp_disable_update(void)
     disp_flush_enabled = false;
 }
 
+void __time_critical_func(call_lv_disp_flush_ready)(void)
+{
+    lv_disp_flush_ready(&disp_drv);
+}
+
 
 /*Flush the content of the internal buffer the specific area on the display
  *You can use DMA or any hardware acceleration to do this operation in the background but
  *'lv_disp_flush_ready()' has to be called when finished.*/
 static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
-    // char *task_name = pcTaskGetName(NULL);
-    // char out[12];
-
-    // sprintf(out, "pushing a frame %s %d", task_name, get_core_num());
-    // pr_debug(out);
-
     if(disp_flush_enabled) {
-        /*The most simple case (but also the slowest) to put all pixels to the screen one-by-one*/
-        // ili9488_video_flush(
-        //     area->x1,
-        //     area->y1,
-        //     area->x2,
-        //     area->y2,
-        //     (void *)color_p,
-        //     lv_area_get_size(area)
-        // );
-        // struct video_context vdc = {
-        //     .xs = area->x1,
-        //     .ys = area->y1,
-        //     .xe = area->x2,
-        //     .ye = area->y2,
-        //     .vmem16 = (void *)color_p,
-        //     .len = lv_area_get_size(area)
-        // };
         struct video_frame vf = {
             .xs = area->x1,
             .ys = area->y1,
@@ -206,7 +188,6 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
     /*IMPORTANT!!!
      *Inform the graphics library that you are ready with the flushing*/
     // lv_disp_flush_ready(disp_drv);
-    // call_lv_disp_flush_ready();
 }
 
 /*OPTIONAL: GPU INTERFACE*/

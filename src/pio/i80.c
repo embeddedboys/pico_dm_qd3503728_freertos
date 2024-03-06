@@ -52,7 +52,8 @@ void __time_critical_func(i80_set_rs_cs)(bool rs, bool cs)
 
 void __time_critical_func(i80_set_rs)(bool rs)
 {
-    gpio_put_masked(1u << LCD_PIN_RS, !!rs << LCD_PIN_RS);
+    // gpio_put_masked(1u << LCD_PIN_RS, !!rs << LCD_PIN_RS);
+    gpio_put(LCD_PIN_RS, rs);
 }
 
 #if USE_DMA
@@ -68,9 +69,6 @@ static inline void __time_critical_func(i80_write_pio16_wr)(PIO pio, uint sm, vo
                           true /* start right now */
     );
 
-    // dma_start_channel_mask(1u << dma_tx);
-
-    /* TODO: use another core to wait. */
     dma_channel_wait_for_finish_blocking(dma_tx);
 }
 #else
