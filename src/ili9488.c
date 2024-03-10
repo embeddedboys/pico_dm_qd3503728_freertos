@@ -108,9 +108,7 @@ static void fbtft_write_gpio16_wr(struct ili9488_priv *priv, void *buf, size_t l
         
         /* Start writing by pulling down /WR */
         dm_gpio_set_value(priv->gpio.wr, 0);
-
-        // printf("data : 0x%x\n", data);
-        
+   
         /* Set data */
 #ifndef DO_NOT_OPTIMIZE_FBTFT_WRITE_GPIO
         if (data == prev_data) {
@@ -168,15 +166,14 @@ static void ili9488_write_reg(struct ili9488_priv *priv, int len, ...)
     
     /* if there no privams */
     if (len == 0)
-        return;
+        goto exit_no_param;
     
-    for (i = 0; i < len; i++) {
-        *buf = (u16)va_arg(args, unsigned int);
-        buf++;
-    }
+    for (i = 0; i < len; i++)
+        *buf++ = (u16)va_arg(args, unsigned int);
     
     len *= 2;
     write_buf_rs(priv, priv->buf, len, 1);
+exit_no_param:
     va_end(args);
 }
 #define NUMARGS(...)  (sizeof((int[]){__VA_ARGS__}) / sizeof(int))
