@@ -76,8 +76,10 @@ int main(void)
 {
     /* NOTE: DO NOT MODIFY THIS BLOCK */
 #define CPU_SPEED_MHZ (DEFAULT_SYS_CLK_KHZ / 1000)
-    if(CPU_SPEED_MHZ > 266 && CPU_SPEED_MHZ <= 396)
+    if(CPU_SPEED_MHZ > 266 && CPU_SPEED_MHZ <= 360)
         vreg_set_voltage(VREG_VOLTAGE_1_20);
+    else if (CPU_SPEED_MHZ > 360 && CPU_SPEED_MHZ <= 396)
+        vreg_set_voltage(VREG_VOLTAGE_1_25);
     else if (CPU_SPEED_MHZ > 396)
         vreg_set_voltage(VREG_VOLTAGE_MAX);
     else
@@ -112,11 +114,11 @@ int main(void)
     // factory_test();
 
     TaskHandle_t lvgl_task_handle;
-    xTaskCreate(lv_timer_task_handler, "lvgl_task", 2048, NULL, (tskIDLE_PRIORITY + 2), &lvgl_task_handle);
+    xTaskCreate(lv_timer_task_handler, "lvgl_task", 2048, NULL, (tskIDLE_PRIORITY + 3), &lvgl_task_handle);
     vTaskCoreAffinitySet(lvgl_task_handle, (1 << 0));
 
     TaskHandle_t video_flush_handler;
-    xTaskCreate(video_flush_task, "video_flush", 256, NULL, (tskIDLE_PRIORITY + 3), &video_flush_handler);
+    xTaskCreate(video_flush_task, "video_flush", 256, NULL, (tskIDLE_PRIORITY + 2), &video_flush_handler);
     vTaskCoreAffinitySet(video_flush_handler, (1 << 1));
 
     backlight_driver_init();

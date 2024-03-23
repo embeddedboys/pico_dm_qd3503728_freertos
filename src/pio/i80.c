@@ -38,8 +38,9 @@
 // #define I80_CLK_DIV 2.8f /* running at 50MHz when pll_sys = 280MHz */
 // #define I80_CLK_DIV 5.6f /* running at 25MHz when pll_sys = 280MHz */
 // #define I80_CLK_DIV 3.6f /* running at 50MHz when pll_sys = 360MHz */
-#define I80_BUS_CLK_KHZ 50000
 
+// Do not modify this header file. It is automatically generated from the pio program.
+// you should modify the pio program instead.
 #include "i80.pio.h"
 
 static PIO g_pio = pio0;
@@ -52,7 +53,6 @@ void __time_critical_func(i80_set_rs_cs)(bool rs, bool cs)
 
 void __time_critical_func(i80_set_rs)(bool rs)
 {
-    // gpio_put_masked(1u << LCD_PIN_RS, !!rs << LCD_PIN_RS);
     gpio_put(LCD_PIN_RS, rs);
 }
 
@@ -72,7 +72,7 @@ static inline void __time_critical_func(i80_write_pio16_wr)(PIO pio, uint sm, vo
     dma_channel_wait_for_finish_blocking(dma_tx);
 }
 #else
-static inline int i80_write_pio16_wr(PIO pio, uint sm, void *buf, size_t len)
+static inline void i80_write_pio16_wr(PIO pio, uint sm, void *buf, size_t len)
 {
     uint16_t data;
 
@@ -86,7 +86,21 @@ static inline int i80_write_pio16_wr(PIO pio, uint sm, void *buf, size_t len)
         len -= 2;
     }
     i80_wait_idle(pio, sm);
-    return 0;
+}
+static inline void i80_write_pio8_wr(PIO pio, uint sm, void *buf, size_t len)
+{
+    uint8_t data;
+
+    i80_wait_idle(pio, sm);
+    while (len) {
+        data = *(uint8_t *)buf;
+
+        i80_put(pio, sm, data);
+
+        buf += 1;
+        len -= 1;
+    }
+    i80_wait_idle(pio, sm);
 }
 #endif
 
@@ -112,7 +126,7 @@ int i80_pio_init(uint8_t db_base, uint8_t db_count, uint8_t pin_wr)
 #endif
 
     uint offset = pio_add_program(g_pio, &i80_program);
-    float clk_div = (DEFAULT_PIO_CLK_KHZ / 2.f / I80_BUS_CLK_KHZ);
+    float clk_div = (DEFAULT_PIO_CLK_KHZ / 2.f / I80_BUS_WR_CLK_KHZ);
     i80_program_init(g_pio, g_sm, offset, db_base, db_count, pin_wr, clk_div);
 
     return 0;

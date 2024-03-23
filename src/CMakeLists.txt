@@ -26,17 +26,18 @@
 # Set all global variables here
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(OVERCLOCK_ENABLED 1)    # 1: enable, 0: disable
+set(OVERCLOCK_ENABLED 0)    # 1: enable, 0: disable
 
 if(OVERCLOCK_ENABLED)
-    message(WARNING "Overclocking is enabled. This may damage your device. Use at your own risk.")
+    message(WARNING "Overclocking is enabled. This may damage your device. Use at own risk.")
     # Overclocking profiles
     #      SYS_CLK  | FLASH_CLK | Voltage
     #  1  | 266MHz  |  133MHz   |  1.10(V) (default, stable, recommended for most devices)
     #  2  | 240MHz  |  120MHZ   |  1.10(V) (more stable)
     #  3  | 360MHz  |  90MHz    |  1.20(V)
-    #  4  | 400MHz  |  100MHz   |  1.25(V)
-    set(OVERCLOCK_PROFILE 4)
+    #  4  | 400MHz  |  100MHz   |  1.30(V)
+    #  5  | 416MHz  |  104MHz   |  1.30(V)
+    set(OVERCLOCK_PROFILE 1)
 
     if(OVERCLOCK_PROFILE EQUAL 1)
         set(SYS_CLK_KHZ 266000)             # CPU clock speed
@@ -49,6 +50,9 @@ if(OVERCLOCK_ENABLED)
         set(PERI_CLK_KHZ ${SYS_CLK_KHZ})
     elseif(OVERCLOCK_PROFILE EQUAL 4)
         set(SYS_CLK_KHZ 400000)
+        set(PERI_CLK_KHZ ${SYS_CLK_KHZ})
+    elseif(OVERCLOCK_PROFILE EQUAL 5)
+        set(SYS_CLK_KHZ 416000)
         set(PERI_CLK_KHZ ${SYS_CLK_KHZ})
     else()
         message(FATAL_ERROR "Invalid overclocking profile")
@@ -85,6 +89,9 @@ add_subdirectory(pio)
 target_compile_definitions(pio_i80 PUBLIC LCD_PIN_RS=${LCD_PIN_RS})
 target_compile_definitions(pio_i80 PUBLIC LCD_PIN_CS=${LCD_PIN_CS})
 target_compile_definitions(pio_i80 PUBLIC DEFAULT_PIO_CLK_KHZ=${PERI_CLK_KHZ})
+
+set(I80_BUS_WR_CLK_KHZ 50000)
+target_compile_definitions(pio_i80 PUBLIC I80_BUS_WR_CLK_KHZ=${I80_BUS_WR_CLK_KHZ})
 
 # include factory test library here
 add_subdirectory(factory)
