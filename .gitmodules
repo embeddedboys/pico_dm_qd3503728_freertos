@@ -1,7 +1,7 @@
 [submodule "lib/FreeRTOS-Kernel"]
 	path = lib/FreeRTOS-Kernel
-	url = https://github.com/FreeRTOS/FreeRTOS-Kernel
+	url = https://gitee.com/embeddedboys/FreeRTOS-Kernel
 [submodule "src/lvgl"]
 	path = src/lvgl
-	url = https://github.com/lvgl/lvgl.git
+	url = https://gitee.com/embeddedboys/lvgl
 	branch = release/v8.3
