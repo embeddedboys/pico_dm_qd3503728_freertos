@@ -90,6 +90,7 @@ int main(void)
                     CLOCKS_CLK_PERI_CTRL_AUXSRC_VALUE_CLK_SYS,
                     CPU_SPEED_MHZ * MHZ,
                     CPU_SPEED_MHZ * MHZ);
+    // stdio_init_all();
     stdio_uart_init_full(uart0, 115200, 16, 17);
 
     printf("\n\n\nPICO DM QD3503728 LVGL Porting\n");
