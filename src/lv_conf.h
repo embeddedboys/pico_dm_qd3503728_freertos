@@ -1,6 +1,6 @@
 /**
  * @file lv_conf.h
- * Configuration file for v8.3.9
+ * Configuration file for v8.4.0
  */
 
 /*
@@ -81,14 +81,14 @@
 #define LV_DISP_DEF_REFR_PERIOD 1      /*[ms]*/
 
 /*Input device read period in milliseconds*/
-#define LV_INDEV_DEF_READ_PERIOD 30     /*[ms]*/
+#define LV_INDEV_DEF_READ_PERIOD 11     /*[ms]*/
 
 /*Use a custom tick source that tells the elapsed time in milliseconds.
  *It removes the need to manually update the tick with `lv_tick_inc()`)*/
 #define LV_TICK_CUSTOM 0
 #if LV_TICK_CUSTOM
     #define LV_TICK_CUSTOM_INCLUDE "pico/time.h"         /*Header for the system time function*/
-    #define LV_TICK_CUSTOM_SYS_TIME_EXPR (time_us_64() / 1000LL)    /*Expression evaluating to current system time in ms*/
+    #define LV_TICK_CUSTOM_SYS_TIME_EXPR (time_us_32() / 1000LL)    /*Expression evaluating to current system time in ms*/
     /*If using lvgl as ESP32 component*/
     // #define LV_TICK_CUSTOM_INCLUDE "esp_timer.h"
     // #define LV_TICK_CUSTOM_SYS_TIME_EXPR ((esp_timer_get_time() / 1000LL))
@@ -175,6 +175,9 @@
 /*-------------
  * GPU
  *-----------*/
+
+/*Use TSi's (aka Think Silicon) acceleration library NemaGFX */
+#define LV_USE_NEMA_GFX 0
 
 /*Use Arm's 2D acceleration library Arm-2D */
 #define LV_USE_GPU_ARM2D 0

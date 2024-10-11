@@ -83,8 +83,9 @@ void lv_port_disp_init(void)
      */
 
 /* a half screen disp buffer */
+#ifndef MY_DISP_BUF_SIZE
 #define MY_DISP_BUF_SIZE    (MY_DISP_HOR_RES * MY_DISP_VER_RES / 4)
-// #define MY_DISP_BUF_SIZE    (MY_DISP_HOR_RES * 10)
+#endif
 
     /* Example for 1) */
     // static lv_disp_draw_buf_t draw_buf_dsc_1;
