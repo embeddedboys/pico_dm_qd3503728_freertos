@@ -99,7 +99,7 @@ set(DISP_OVER_PIO 1) # 1: PIO, 0: GPIO
 set(PIO_USE_DMA   1)   # 1: use DMA, 0: not use DMA
 set(I80_BUS_WR_CLK_KHZ 58000)
 if(${PICO_BOARD} STREQUAL "pico" OR ${PICO_PLATFORM} STREQUAL "rp2040")
-    math(EXPR MY_DISP_BUF_SIZE "${LCD_HOR_RES} * ${LCD_VER_RES} / 4")
+    math(EXPR MY_DISP_BUF_SIZE "${LCD_HOR_RES} * ${LCD_VER_RES} / 6")
 elseif(${PICO_BOARD} STREQUAL "pico2" OR ${PICO_PLATFORM} STREQUAL "rp2350")
     math(EXPR MY_DISP_BUF_SIZE "${LCD_HOR_RES} * ${LCD_VER_RES} / 2")
 endif()
@@ -108,6 +108,8 @@ include_directories(. ../include)
 
 # add lvgl library here
 add_subdirectory(lvgl)
+target_link_libraries(lvgl PUBLIC pico_stdlib FreeRTOS-Kernel-Heap3)
+target_include_directories(lvgl PUBLIC ${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/include ${FREERTOS_KERNEL_PATH}/include)
 
 # include PIO library here
 add_subdirectory(pio)
@@ -121,7 +123,6 @@ target_compile_definitions(pio_i80 PUBLIC I80_BUS_WR_CLK_KHZ=${I80_BUS_WR_CLK_KH
 # add_subdirectory(factory)
 
 # lv_conf.h need pico header files e.g. the custom tick
-target_link_libraries(lvgl PRIVATE pico_stdlib)
 
 # user define common source files
 file(GLOB_RECURSE COMMON_SOURCES
