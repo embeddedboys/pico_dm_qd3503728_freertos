@@ -45,5 +45,5 @@ add_custom_target(
     COMMAND arm-none-eabi-size -G src/${CMAKE_PROJECT_NAME}.elf
     DEPENDS ${CMAKE_BINARY_DIR}/src/${CMAKE_PROJECT_NAME}.elf
     COMMENT "Print target size info"
-    DEPENDS ${ProjectName}
+    DEPENDS ${PROJECT_NAME}
 )
