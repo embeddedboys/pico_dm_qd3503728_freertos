@@ -117,7 +117,7 @@ int main(void)
     vTaskCoreAffinitySet(lvgl_task_handle, (1 << 0));
 
     TaskHandle_t video_flush_handler;
-    xTaskCreate(video_flush_task, "video_flush", 256, NULL, (tskIDLE_PRIORITY + 2), &video_flush_handler);
+    xTaskCreate(video_flush_task, "video_flush", configMINIMAL_STACK_SIZE, NULL, (tskIDLE_PRIORITY + 2), &video_flush_handler);
     vTaskCoreAffinitySet(video_flush_handler, (1 << 1));
 
     backlight_driver_init();
