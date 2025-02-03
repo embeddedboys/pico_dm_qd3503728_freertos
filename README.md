@@ -1,4 +1,29 @@
-# rp2040-freertos-template
-This is a template project for developing FreeRTOS based applications on Raspberry Pi RP2040 based boards. This template uses the "official" RP2040 port from the Raspberry Pi Foundation. My previous repo used the generic Cortex M0 port so this one corrects that. Previous Repo retained as tutorials rely on it. 
+# Pico DM QD3503728 FreeRTOS
 
-Unmodified, this project will spawn a single task to rapidly blink the LED on and off.
+## Get started
+```bash
+git clone https://github.com/embeddedboys/pico_dm_qd3503728_freertos
+cd pico_dm_qd3503728_freertos
+git submodule update --init --recursive
+```
+
+## Setup
+
+### Raspberry Pi Pico (RP2040)
+```bash
+mkdir -p build && cd build
+cmake .. -G Ninja
+ln -sf $PWD/compile_commands.json ../
+```
+
+### Raspberry Pi Pico2 (RP2350)
+```bash
+mkdir -p build-pico2 && cd build-pico2
+cmake -DPICO_BOARD=pico2 .. -G Ninja
+ln -sf $PWD/compile_commands.json ../
+```
+
+## Build & flash target
+```bash
+ninja flash
+```
